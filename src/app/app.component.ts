@@ -17,7 +17,7 @@ import { environment } from '../environments/environment';
 
 })
 export class AppComponent implements OnInit {
-  title = 'Session Tracker';  // Added title property
+  title = 'Crispy Swim Team';  // Added title property
   sessions: any[] = [];
   selectedDate: string = '';  // Bound to the date input field
 
