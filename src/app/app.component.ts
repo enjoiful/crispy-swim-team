@@ -1,9 +1,10 @@
 import { Component, OnInit} from '@angular/core';
+import { initializeApp } from 'firebase/app';
 import { RouterOutlet } from '@angular/router';
 import { FirebaseService } from './services/firebase.service';
 import { CommonModule } from '@angular/common';  // Import CommonModule
 import { FormsModule } from '@angular/forms';  // <-- Import FormsModule
-
+import { environment } from '../environments/environment';
 
 
 @Component({
@@ -20,7 +21,9 @@ export class AppComponent implements OnInit {
   sessions: any[] = [];
   selectedDate: string = '';  // Bound to the date input field
 
-  constructor(private firebaseService: FirebaseService) {}  // Updated to FirebaseService
+  constructor(private firebaseService: FirebaseService) {
+    initializeApp(environment.firebaseConfig);
+  }  // Updated to FirebaseService
 
   ngOnInit() {
     // Set default date to yesterday's date

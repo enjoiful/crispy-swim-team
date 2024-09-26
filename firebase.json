@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "crispy-swim-team",
+    "public": "dist/crispy-swim-team/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
