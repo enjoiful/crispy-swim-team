@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { initializeApp } from 'firebase/app';
 import { RouterOutlet } from '@angular/router';
 import { FirebaseService } from './services/firebase.service';
@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';  // Import CommonModule
 import { FormsModule } from '@angular/forms';  // <-- Import FormsModule
 import { environment } from '../environments/environment';
 import { BaseChartDirective } from 'ng2-charts';
+import { SiteNamePipe } from './site-name.pipe'; // Adjust the path as needed
 
 
 
@@ -22,8 +23,8 @@ export class AppComponent implements OnInit {
   title = 'Crispy Swim Team';  // Added title property
   sessions: any[] = [];
   selectedDate: string = '';  // Bound to the date input field
-
-  barChartData = {
+  chartOptions: any = {}
+  barChartData: any = {
     "labels": ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
     "datasets": [
       {
@@ -50,7 +51,7 @@ export class AppComponent implements OnInit {
     ]
   }
 
-  constructor(private firebaseService: FirebaseService) {
+  constructor(private firebaseService: FirebaseService, private siteNamePipe: SiteNamePipe) {
     initializeApp(environment.firebaseConfig);
   }  // Updated to FirebaseService
 
@@ -67,15 +68,15 @@ export class AppComponent implements OnInit {
     this.fetchSessionsForDate(yesterday);
   }
 
-    // Format date to yyyy-MM-dd for the date picker input field
-    private formatDateToInput(date: Date): string {
-      const year = date.getFullYear();
-      const month = ('0' + (date.getMonth() + 1)).slice(-2);  // Months are zero-indexed
-      const day = ('0' + date.getDate()).slice(-2);
-  
-      return `${year}-${month}-${day}`;
-    }
-  
+  // Format date to yyyy-MM-dd for the date picker input field
+  private formatDateToInput(date: Date): string {
+    const year = date.getFullYear();
+    const month = ('0' + (date.getMonth() + 1)).slice(-2);  // Months are zero-indexed
+    const day = ('0' + date.getDate()).slice(-2);
+
+    return `${year}-${month}-${day}`;
+  }
+
 
   // When a new date is selected, make sure it's interpreted as PST
   onDateChange() {
@@ -125,6 +126,123 @@ export class AppComponent implements OnInit {
     this.firebaseService.getSessionsBetweenEpochs(startEpochInMilliseconds, endEpochInMilliseconds)
       .subscribe(data => {
         this.sessions = data;
+        this.createChart(data)
+
       });
+
+
+    // Call the getSessionsForUser method from FirebaseService and subscribe to its observable
+    this.firebaseService.getSessionsForUser(35609).subscribe({
+      next: (sessions) => {
+        // this.sessions = sessions;
+        // this.createChart(sessions)
+        // console.log('User Sessions:', this.sessions); // Debugging - log the retrieved sessions
+      },
+      error: (error) => {
+        // this.errorMessage = `Error fetching user sessions: ${error}`;
+        console.error(error);  // Log the error if something goes wrong
+      }
+    });
+
+
   }
+
+
+  createChart(sessions: any) {
+    // Count sessions per spot ID (existing code)
+    var sessionCounts: any = {};
+    sessions.forEach(function (session: any) {
+      var spotId = session.spot.id;
+      if (sessionCounts[spotId]) {
+        sessionCounts[spotId]++;
+      } else {
+        sessionCounts[spotId] = 1;
+      }
+    });
+
+    var _this = this
+    // Convert sessionCounts object into an array of objects
+    var sessionArray = Object.keys(sessionCounts).map(function (spotId) {
+      return {
+        spotId: _this.siteNamePipe.transform(spotId),
+        count: sessionCounts[spotId]
+      };
+    });
+
+    // Sort the array by count in descending order
+    sessionArray.sort(function (a, b) {
+      return b.count - a.count;
+    });
+
+    // Extract sorted labels and data arrays
+    var labels = sessionArray.map(function (item) {
+      return item.spotId;
+    });
+
+    var data = sessionArray.map(function (item) {
+      return item.count;
+    });
+
+    // Create chart data object
+    this.barChartData = {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Number of Sessions per Spot',
+          data: data,
+          borderWidth: 1,
+          backgroundColor: [
+            "rgba(255, 99, 132, 0.2)",
+            "rgba(54, 162, 235, 0.2)",
+            "rgba(255, 206, 86, 0.2)",
+            "rgba(75, 192, 192, 0.2)",
+            "rgba(153, 102, 255, 0.2)",
+            "rgba(255, 159, 64, 0.2)"
+          ],
+          borderColor: [
+            "rgba(255, 99, 132, 1)",
+            "rgba(54, 162, 235, 1)",
+            "rgba(255, 206, 86, 1)",
+            "rgba(75, 192, 192, 1)",
+            "rgba(153, 102, 255, 1)",
+            "rgba(255, 159, 64, 1)"
+          ]
+        }
+      ]
+    };
+
+    this.chartOptions = {
+      indexAxis: 'y',
+      plugins: {
+        title: {
+          display: true,
+          text: 'Sessions across Site'
+        },
+        tooltip: {
+          enabled: true
+        },
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Number of Sessions'
+          }
+        },
+        y: {
+          title: {
+            display: false,
+            text: 'Spot ID'
+          }
+        }
+      }
+    }
+
+  }
+
+
 }
