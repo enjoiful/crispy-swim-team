@@ -1,22 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { initializeApp } from 'firebase/app';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterLink } from '@angular/router';
 import { FirebaseService } from './services/firebase.service';
 import { CommonModule } from '@angular/common';  // Import CommonModule
 import { FormsModule } from '@angular/forms';  // <-- Import FormsModule
 import { environment } from '../environments/environment';
 import { BaseChartDirective } from 'ng2-charts';
 import { SiteNamePipe } from './site-name.pipe'; // Adjust the path as needed
+import { SessionsService} from './sessions.service'
 
 
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, FormsModule, BaseChartDirective],
+  imports: [RouterOutlet, CommonModule, FormsModule, BaseChartDirective, RouterLink, SiteNamePipe],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
-  providers: [FirebaseService], // Ensure your service is properly injected
+  providers: [FirebaseService, SessionsService], // Ensure your service is properly injected
 
 })
 export class AppComponent implements OnInit {
@@ -51,7 +52,7 @@ export class AppComponent implements OnInit {
     ]
   }
 
-  constructor(private firebaseService: FirebaseService, private siteNamePipe: SiteNamePipe) {
+  constructor(private firebaseService: FirebaseService, private siteNamePipe: SiteNamePipe, private sessionsService: SessionsService) {
     initializeApp(environment.firebaseConfig);
   }  // Updated to FirebaseService
 
@@ -126,6 +127,8 @@ export class AppComponent implements OnInit {
     this.firebaseService.getSessionsBetweenEpochs(startEpochInMilliseconds, endEpochInMilliseconds)
       .subscribe(data => {
         this.sessions = data;
+        this.sessionsService.updateData(data);
+
         this.createChart(data)
 
       });
