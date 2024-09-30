@@ -18,6 +18,7 @@ export class AllSitesComponent {
   siteCount: number = 0;
   kiterCount: number = 0;
   totalTime: string = ''
+  totalJumps: number = 0;
   state$: Observable<object>
   constructor(public activatedRoute: ActivatedRoute, private sessionsService: SessionsService) {}
 
@@ -35,8 +36,15 @@ export class AllSitesComponent {
 
   ngOnInit() {
     this.sessionsService.data$.subscribe((data) => {
+      if (!data){
+        this.siteCount = 0
+        this.kiterCount = 0
+        this.totalTime ='0'
+        this.totalJumps = 0
+        return
+      }
       this.sessions = data;
-      console.log('Received data:', data);
+      // console.log('Received data:', data[0].jumps.length);
 
       const uniqueSpotIds = new Set();
       this.sessions.forEach(session => {
@@ -51,6 +59,9 @@ export class AllSitesComponent {
       this.kiterCount = uniqueKiters.size;
 
       this.totalTime = this.formatTotalTime(this.sessions) + 'h'
+
+      this.totalJumps = this.sessions.reduce((total, session) => total + (session.jumps?.length ? session.jumps.length : 0), 0);
+
 
     });
 

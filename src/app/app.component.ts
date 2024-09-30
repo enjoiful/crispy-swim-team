@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { initializeApp } from 'firebase/app';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { FirebaseService } from './services/firebase.service';
@@ -7,7 +7,9 @@ import { FormsModule } from '@angular/forms';  // <-- Import FormsModule
 import { environment } from '../environments/environment';
 import { BaseChartDirective } from 'ng2-charts';
 import { SiteNamePipe } from './site-name.pipe'; // Adjust the path as needed
-import { SessionsService} from './sessions.service'
+import { SessionsService } from './sessions.service'
+
+import { ActivatedRoute, Router, NavigationStart, NavigationEnd, NavigationError, Event } from '@angular/router';
 
 
 
@@ -22,7 +24,8 @@ import { SessionsService} from './sessions.service'
 })
 export class AppComponent implements OnInit {
   title = 'Crispy Swim Team';  // Added title property
-  sessions: any[] = [];
+  allSessions: any[] = [];
+  filteredSessions: any[] = [];
   selectedDate: string = '';  // Bound to the date input field
   chartOptions: any = {}
   barChartData: any = {
@@ -52,7 +55,7 @@ export class AppComponent implements OnInit {
     ]
   }
 
-  constructor(private firebaseService: FirebaseService, private siteNamePipe: SiteNamePipe, private sessionsService: SessionsService) {
+  constructor(private firebaseService: FirebaseService, private siteNamePipe: SiteNamePipe, private sessionsService: SessionsService, private route: ActivatedRoute, private router: Router) {
     initializeApp(environment.firebaseConfig);
   }  // Updated to FirebaseService
 
@@ -67,6 +70,44 @@ export class AppComponent implements OnInit {
 
     // Fetch sessions for yesterday's date
     this.fetchSessionsForDate(yesterday);
+
+
+    this.router.events.subscribe((event: Event) => {
+      if (event instanceof NavigationStart) {
+        // Show loading indicator
+      }
+
+      if (event instanceof NavigationEnd) {
+        // Hide loading indicator
+
+        if (event.url.includes('site-details')) {
+                  console.log('event is', event)
+
+          const siteId = event.url.split('?id=')[1];
+          console.log('site id is', Number(siteId))
+
+          this.filteredSessions = this.allSessions.filter(session => session.spot.id == Number(siteId))
+
+        } else if (event.url.includes('all-sites')) {
+          this.filteredSessions = this.allSessions
+
+        }
+
+        console.log('filtered', this.filteredSessions)
+                this.sessionsService.updateData(this.filteredSessions);
+
+
+      }
+
+      if (event instanceof NavigationError) {
+        // Hide loading indicator
+
+        // Present error to user
+        console.log(event.error);
+      }
+    });
+
+
   }
 
   // Format date to yyyy-MM-dd for the date picker input field
@@ -126,9 +167,10 @@ export class AppComponent implements OnInit {
     // Call the service with the start and end epoch to fetch sessions in between
     this.firebaseService.getSessionsBetweenEpochs(startEpochInMilliseconds, endEpochInMilliseconds)
       .subscribe(data => {
-        this.sessions = data;
+        this.allSessions = data;
+        this.filteredSessions = data;
         this.sessionsService.updateData(data);
-
+        console.log(data)
         this.createChart(data)
 
       });
@@ -154,7 +196,7 @@ export class AppComponent implements OnInit {
   createChart(sessions: any) {
     // Count sessions per spot ID (existing code)
     var sessionCounts: any = {};
-    sessions.forEach(function (session: any) {
+    sessions.forEach(function(session: any) {
       var spotId = session.spot.id;
       if (sessionCounts[spotId]) {
         sessionCounts[spotId]++;
@@ -165,7 +207,7 @@ export class AppComponent implements OnInit {
 
     var _this = this
     // Convert sessionCounts object into an array of objects
-    var sessionArray = Object.keys(sessionCounts).map(function (spotId) {
+    var sessionArray = Object.keys(sessionCounts).map(function(spotId) {
       return {
         spotId: _this.siteNamePipe.transform(spotId),
         count: sessionCounts[spotId]
@@ -173,16 +215,16 @@ export class AppComponent implements OnInit {
     });
 
     // Sort the array by count in descending order
-    sessionArray.sort(function (a, b) {
+    sessionArray.sort(function(a, b) {
       return b.count - a.count;
     });
 
     // Extract sorted labels and data arrays
-    var labels = sessionArray.map(function (item) {
+    var labels = sessionArray.map(function(item) {
       return item.spotId;
     });
 
-    var data = sessionArray.map(function (item) {
+    var data = sessionArray.map(function(item) {
       return item.count;
     });
 
