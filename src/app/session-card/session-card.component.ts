@@ -18,7 +18,7 @@ export class SessionCardComponent {
 
 
   getColor(session: any) {
-    console.log('sup')
+    return '--gray-700'
     if (session.spot.id == 10773) {
       return '--bright-blue'
     } else if (session.spot.id == 10511) {
