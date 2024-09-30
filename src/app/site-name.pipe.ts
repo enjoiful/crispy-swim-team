@@ -21,6 +21,6 @@ export class SiteNamePipe implements PipeTransform {
     const idStr = id.toString();
     const site = sites[idStr];
 
-    return site ? site.name : 'Unknown Location';
+    return site ? (site.nickname? site.nickname : site.name) : 'Unknown Location';
   }
 }

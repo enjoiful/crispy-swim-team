@@ -8,6 +8,7 @@ import { environment } from '../environments/environment';
 import { BaseChartDirective } from 'ng2-charts';
 import { SiteNamePipe } from './site-name.pipe'; // Adjust the path as needed
 import { SessionsService } from './sessions.service'
+import { SessionCardComponent } from './session-card/session-card.component'
 
 import { ActivatedRoute, Router, NavigationStart, NavigationEnd, NavigationError, Event } from '@angular/router';
 
@@ -16,7 +17,7 @@ import { ActivatedRoute, Router, NavigationStart, NavigationEnd, NavigationError
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, FormsModule, BaseChartDirective, RouterLink, SiteNamePipe],
+  imports: [RouterOutlet, CommonModule, FormsModule, BaseChartDirective, RouterLink, SiteNamePipe, SessionCardComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   providers: [FirebaseService, SessionsService], // Ensure your service is properly injected
@@ -62,7 +63,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     // Set default date to yesterday's date
     const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);  // Subtract one day to get yesterday
+    yesterday.setDate(yesterday.getDate() - 2);  // Subtract one day to get yesterday
 
     // Format the date as yyyy-MM-dd for the date input
     this.selectedDate = this.formatDateToInput(yesterday);

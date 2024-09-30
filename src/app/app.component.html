@@ -90,6 +90,7 @@ align-items: start;
 flex-wrap: wrap;
 gap: 1.25rem;
 }
+
 .pill {
 display: flex;
 align-items: center;
@@ -178,16 +179,16 @@ margin-block: 1.5rem;
       (change)="onDateChange()"
       />
       <div class="pill-group m-6">
-        <a  class="pill" routerLink="/all-sites" [state]="{ sessions: filteredSessions }">
+        <a  class="pill" style="--pill-accent: var(--gray-900)" routerLink="/all-sites" [state]="{ sessions: filteredSessions }">
           <span>All Sites</span>
         </a>
-        <a  class="pill" routerLink="/site-details" [queryParams]="{ id: 10773 }">
+        <a  class="pill" style="--pill-accent: var(--bright-blue)" routerLink="/site-details" [queryParams]="{ id: 10773 }">
           <span>3rd Avenue</span>
         </a>
-        <a  class="pill" routerLink="/site-details" [queryParams]="{ id: 10511 }">
+        <a  class="pill" style="--pill-accent: var(--hot-red)" routerLink="/site-details" [queryParams]="{ id: 10511 }">
           <span>Crissy Field</span>
         </a>
-        <a  class="pill" routerLink="/site-details" [queryParams]="{id: 5842}">
+        <a  class="pill" style="--pill-accent: var(--french-violet)" routerLink="/site-details" [queryParams]="{id: 5842}">
           <span>Sherman Island</span>
         </a>
       </div>
@@ -197,14 +198,11 @@ margin-block: 1.5rem;
         <router-outlet />
       </div>
       <div class="card-container">
-        <div class="card mb-6" *ngFor="let card of filteredSessions">
-          <h3 class="mb-1">{{ card.user?.name}}</h3>
-          <div class="flex" style="justify-content: space-between;">{{card.maxheight  | number:'1.1-1'}}m  <span> {{card.spot.id | siteName  }} </span> </div>
-          <div style="font-size:10px"> {{ card.id }} {{card.user?.id}}</div>
-          
-        </div>
+
+        <app-session-card [session]="sesion" *ngFor="let sesion of filteredSessions"></app-session-card>
+
       </div>
-      <canvas baseChart [data]="barChartData" [options]="chartOptions" [type]="'bar'"  height="400"> </canvas>
+      <!-- <canvas baseChart [data]="barChartData" [options]="chartOptions" [type]="'bar'"  height="400"> </canvas> -->
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
     <div class="right-side">

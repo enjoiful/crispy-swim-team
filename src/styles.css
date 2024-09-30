@@ -1,3 +1,25 @@
 @tailwind components;
 @tailwind utilities;
-/* @tailwind base; */
+@tailwind base; 
+
+
+@font-face {
+	font-family: RobotoMono;
+	font-style: normal;
+	font-weight: 400;
+	src: url(./assets/fonts/RobotoMono-Regular.woff) format('woff');
+}
+
+@font-face {
+	font-family: RobotoMono;
+	font-style: normal;
+	font-weight: 500;
+	src: url(./assets/fonts/RobotoMono-Medium.woff) format('woff');
+}
+
+@font-face {
+	font-family: RobotoMono;
+	font-style: normal;
+	font-weight: 700;
+	src: url(./assets/fonts/RobotoMono-Bold.woff) format('woff');
+}

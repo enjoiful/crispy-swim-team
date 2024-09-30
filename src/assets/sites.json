@@ -2,22 +2,26 @@
   "10773": {
     "countryid": 0,
     "id": 10773,
-    "name": "3rd Avenue"
+    "name": "3rd Avenue",
+    "nickname": "3rd"
   },
   "10511": {
     "countryid": 0,
     "id": 10511,
-    "name": "Crissy Field"
+    "name": "Crissy Field",
+    "nickname": "Crissy"
   },
   "5842": {
     "countryid": 0,
     "id": 5842,
-    "name": "Sherman Island Kite Launch"
+    "name": "Sherman Island Kite Launch",
+    "nickname": "Sherman"
   },
   "10750": {
     "countryid": 0,
     "id": 10750,
-    "name": "Waddell Creek"
+    "name": "Waddell Creek",
+    "nickname": "Waddell"
   },
   "4406": {
     "countryid": 0,
@@ -37,7 +41,8 @@
   "5837": {
     "countryid": 0,
     "id": 5837,
-    "name": "San Francisco, Emery Point"
+    "name": "San Francisco, Emery Point",
+    "nickname": "Emery Point"
   },
   "10412": {
     "countryid": 0,

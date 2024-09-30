@@ -4,7 +4,13 @@ module.exports = {
     "./src/**/*.{html,ts}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['OpenSans', 'sans-serif'],
+        mono: ['RobotoMono', 'monospace'],
+      },
+    },
   },
   plugins: [],
+
 }
