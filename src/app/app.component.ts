@@ -70,7 +70,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     // Set default date to yesterday's date
     const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 2);  // Subtract one day to get yesterday
+    yesterday.setDate(yesterday.getDate() - 3);  // Subtract one day to get yesterday
 
     // Format the date as yyyy-MM-dd for the date input
     this.selectedDate = this.formatDateToInput(yesterday);
@@ -287,6 +287,9 @@ export class AppComponent implements OnInit {
           title: {
             display: true,
             text: 'Sessions'
+          },
+          grid: {
+            display: false
           }
         },
         y: {
@@ -384,11 +387,9 @@ export class AppComponent implements OnInit {
       scales: {
         x: {
           beginAtZero: true,
-                gridLines: {
-        display: false,    // Hides grid lines on x-axis
-        drawBorder: false, // Hides the axis line
-        tickMarkLength: 0  // Hides tick marks
-      },
+          grid:{
+            display: false
+          }
         }
 
       },
