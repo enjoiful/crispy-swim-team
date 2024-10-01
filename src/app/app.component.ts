@@ -9,6 +9,11 @@ import { BaseChartDirective } from 'ng2-charts';
 import { SiteNamePipe } from './site-name.pipe'; // Adjust the path as needed
 import { SessionsService } from './sessions.service'
 import { SessionCardComponent } from './session-card/session-card.component'
+import { Chart } from 'chart.js';
+
+import 'chartjs-plugin-datalabels'; // Import the plugin
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+
 
 import { ActivatedRoute, Router, NavigationStart, NavigationEnd, NavigationError, Event } from '@angular/router';
 
@@ -25,6 +30,7 @@ import { ActivatedRoute, Router, NavigationStart, NavigationEnd, NavigationError
 })
 export class AppComponent implements OnInit {
   title = 'Crispy Swim Team';  // Added title property
+  ChartDataLabels = ChartDataLabels
   allSessions: any[] = [];
   filteredSessions: any[] = [];
   selectedDate: string = '';  // Bound to the date input field
@@ -295,20 +301,20 @@ export class AppComponent implements OnInit {
   }
 
   masterArray: { rider: string, height: number }[] = [];
-   riderColors: { [rider: string]: string } = {}; // Store colors per rider
+  riderColors: { [rider: string]: string } = {}; // Store colors per rider
 
-processJumps(sessions: any[]) {
+  processJumps(sessions: any[]) {
     // Predefined colors for each rider
-  this.masterArray = []
+    this.masterArray = []
     const colors3 = ['rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)', 'rgba(255, 159, 64, 0.6)'];
-const colors = [
-            "rgba(255, 99, 132, 0.2)",
-            "rgba(54, 162, 235, 0.2)",
-            "rgba(255, 206, 86, 0.2)",
-            "rgba(75, 192, 192, 0.2)",
-            "rgba(153, 102, 255, 0.2)",
-            "rgba(255, 159, 64, 0.2)"
-];
+    const colors = [
+      "rgba(255, 99, 132, 0.2)",
+      "rgba(54, 162, 235, 0.2)",
+      "rgba(255, 206, 86, 0.2)",
+      "rgba(75, 192, 192, 0.2)",
+      "rgba(153, 102, 255, 0.2)",
+      "rgba(255, 159, 64, 0.2)"
+    ];
     let colorIndex = 0;
 
     // Loop through each session
@@ -318,11 +324,11 @@ const colors = [
         if (!this.riderColors[session.user.name]) {
           this.riderColors[session.user.name] = colors[colorIndex % colors.length];
           colorIndex++;
-        } 
+        }
 
         // Sort jumps in descending order and get up to the top 3
         const topJumps = session.jumps
-          .sort((a: any, b:any) => b.height - a.height)
+          .sort((a: any, b: any) => b.height - a.height)
           .slice(0, Math.min(3, session.jumps.length));
 
         // Push the top jumps to the masterArray
@@ -347,37 +353,56 @@ const colors = [
     // const canvas = <HTMLCanvasElement>document.getElementById('jumpChart');
     // const ctx = canvas.getContext('2d');
 
-    const labels = this.masterArray.map(jump => `${jump.rider}`).slice(0,50);
-    const data = this.masterArray.map(jump => jump.height).slice(0,50);
+    const labels = this.masterArray.map(jump => `${jump.rider}`).slice(0, 50);
+    const data = this.masterArray.map(jump => jump.height).slice(0, 50);
 
-        // Assign colors based on rider names
+    // Assign colors based on rider names
     const backgroundColors = this.masterArray.map(jump => this.riderColors[jump.rider]);
 
 
     console.log('data is', data, labels)
 
     this.jumpBarChartData = {
-        labels: labels,
-        datasets: [{
-          label: 'Top Jumps (m)',
-          data: data,
-          backgroundColor: backgroundColors, // Dynamic colors per bar
-          borderColor: '#ababab',
+      labels: labels,
+      datasets: [{
+        label: 'Top Jumps (m)',
+        data: data,
+        backgroundColor: backgroundColors, // Dynamic colors per bar
+        borderColor: '#ababab',
 
-          // borderColor: 'rgba(75, 192, 192, 1)',
-          borderWidth: 1
-        }]
+        // borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1
+      }]
     }
 
 
 
-    this.jumpBarChartOptions =  {
+    this.jumpBarChartOptions = {
       responsive: false,  // Disable responsiveness to prevent chart from adjusting to container size
       maintainAspectRatio: true, // Allow chart to grow vertically as needed
       indexAxis: 'y', // Horizontal bar chart
       scales: {
         x: {
-          beginAtZero: true
+          beginAtZero: true,
+                gridLines: {
+        display: false,    // Hides grid lines on x-axis
+        drawBorder: false, // Hides the axis line
+        tickMarkLength: 0  // Hides tick marks
+      },
+        }
+
+      },
+      plugins: {
+        datalabels: {
+          anchor: 'end', // Position the labels at the end of the bars
+          align: 'end', // Align labels to the bar
+          color: '#000', // Label color (black)
+          formatter: (value: any) => {
+            return value.toFixed(1) + 'm'; // Format value (e.g., '10m')
+          },
+          font: {
+            weight: '200' // Make label text bold
+          }
         }
       }
     }

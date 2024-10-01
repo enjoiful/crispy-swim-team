@@ -203,7 +203,7 @@ margin-block: 1.5rem;
     </div>
 
     <div class="scroll-container">
-  <canvas baseChart [data]="jumpBarChartData" [options]="jumpBarChartOptions" [type]="'bar'"  height="800"> </canvas>
+  <canvas baseChart [data]="jumpBarChartData" [options]="jumpBarChartOptions" [plugins]="[ChartDataLabels]"[type]="'bar'"  height="800"> </canvas>
 </div>
     
   </div>
