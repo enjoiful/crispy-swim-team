@@ -29,32 +29,33 @@ export class AppComponent implements OnInit {
   filteredSessions: any[] = [];
   selectedDate: string = '';  // Bound to the date input field
   chartOptions: any = {}
-  barChartData: any = {
-    "labels": ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-    "datasets": [
-      {
-        "label": "Votes",
-        "data": [12, 19, 3, 5, 2, 3],
-        "backgroundColor": [
-          "rgba(255, 99, 132, 0.2)",
-          "rgba(54, 162, 235, 0.2)",
-          "rgba(255, 206, 86, 0.2)",
-          "rgba(75, 192, 192, 0.2)",
-          "rgba(153, 102, 255, 0.2)",
-          "rgba(255, 159, 64, 0.2)"
-        ],
-        "borderColor": [
-          "rgba(255, 99, 132, 1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
-          "rgba(75, 192, 192, 1)",
-          "rgba(153, 102, 255, 1)",
-          "rgba(255, 159, 64, 1)"
-        ],
-        "borderWidth": 1
-      }
-    ]
-  }
+  barChartData: any = {}
+  // barChartData: any = {
+  //   "labels": ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+  //   "datasets": [
+  //     {
+  //       "label": "Votes",
+  //       "data": [12, 19, 3, 5, 2, 3],
+  //       "backgroundColor": [
+  //         "rgba(255, 99, 132, 0.2)",
+  //         "rgba(54, 162, 235, 0.2)",
+  //         "rgba(255, 206, 86, 0.2)",
+  //         "rgba(75, 192, 192, 0.2)",
+  //         "rgba(153, 102, 255, 0.2)",
+  //         "rgba(255, 159, 64, 0.2)"
+  //       ],
+  //       "borderColor": [
+  //         "rgba(255, 99, 132, 1)",
+  //         "rgba(54, 162, 235, 1)",
+  //         "rgba(255, 206, 86, 1)",
+  //         "rgba(75, 192, 192, 1)",
+  //         "rgba(153, 102, 255, 1)",
+  //         "rgba(255, 159, 64, 1)"
+  //       ],
+  //       "borderWidth": 1
+  //     }
+  //   ]
+  // }
 
   constructor(private firebaseService: FirebaseService, private siteNamePipe: SiteNamePipe, private sessionsService: SessionsService, private route: ActivatedRoute, private router: Router) {
     initializeApp(environment.firebaseConfig);
@@ -82,7 +83,7 @@ export class AppComponent implements OnInit {
         // Hide loading indicator
 
         if (event.url.includes('site-details')) {
-                  console.log('event is', event)
+          console.log('event is', event)
 
           const siteId = event.url.split('?id=')[1];
           console.log('site id is', Number(siteId))
@@ -95,7 +96,9 @@ export class AppComponent implements OnInit {
         }
 
         console.log('filtered', this.filteredSessions)
-                this.sessionsService.updateData(this.filteredSessions);
+        this.sessionsService.updateData(this.filteredSessions);
+        this.createChart(this.filteredSessions)
+        this.processJumps(this.filteredSessions)
 
 
       }
@@ -173,6 +176,7 @@ export class AppComponent implements OnInit {
         this.sessionsService.updateData(data);
         console.log(data)
         this.createChart(data)
+        this.processJumps(data)
 
       });
 
@@ -261,7 +265,7 @@ export class AppComponent implements OnInit {
       indexAxis: 'y',
       plugins: {
         title: {
-          display: true,
+          display: false,
           text: 'Sessions across Site'
         },
         tooltip: {
@@ -276,7 +280,7 @@ export class AppComponent implements OnInit {
           beginAtZero: true,
           title: {
             display: true,
-            text: 'Number of Sessions'
+            text: 'Sessions'
           }
         },
         y: {
@@ -287,6 +291,98 @@ export class AppComponent implements OnInit {
         }
       }
     }
+
+  }
+
+  masterArray: { rider: string, height: number }[] = [];
+   riderColors: { [rider: string]: string } = {}; // Store colors per rider
+
+processJumps(sessions: any[]) {
+    // Predefined colors for each rider
+  this.masterArray = []
+    const colors3 = ['rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)', 'rgba(255, 159, 64, 0.6)'];
+const colors = [
+            "rgba(255, 99, 132, 0.2)",
+            "rgba(54, 162, 235, 0.2)",
+            "rgba(255, 206, 86, 0.2)",
+            "rgba(75, 192, 192, 0.2)",
+            "rgba(153, 102, 255, 0.2)",
+            "rgba(255, 159, 64, 0.2)"
+];
+    let colorIndex = 0;
+
+    // Loop through each session
+    sessions.forEach((session: any) => {
+      if (session.jumps && session.jumps.length > 0) {
+        // Assign a unique color to each rider
+        if (!this.riderColors[session.user.name]) {
+          this.riderColors[session.user.name] = colors[colorIndex % colors.length];
+          colorIndex++;
+        } 
+
+        // Sort jumps in descending order and get up to the top 3
+        const topJumps = session.jumps
+          .sort((a: any, b:any) => b.height - a.height)
+          .slice(0, Math.min(3, session.jumps.length));
+
+        // Push the top jumps to the masterArray
+        topJumps.forEach((jump: any) => {
+          this.masterArray.push({
+            rider: session.user.name,
+            height: jump.height
+          });
+        });
+      }
+    });
+
+    // Sort masterArray by jump height in descending order
+    this.masterArray.sort((a, b) => b.height - a.height);
+
+    this.createJumpChart()
+  }
+
+  jumpBarChartData: any
+  jumpBarChartOptions: any
+  createJumpChart() {
+    // const canvas = <HTMLCanvasElement>document.getElementById('jumpChart');
+    // const ctx = canvas.getContext('2d');
+
+    const labels = this.masterArray.map(jump => `${jump.rider}`).slice(0,50);
+    const data = this.masterArray.map(jump => jump.height).slice(0,50);
+
+        // Assign colors based on rider names
+    const backgroundColors = this.masterArray.map(jump => this.riderColors[jump.rider]);
+
+
+    console.log('data is', data, labels)
+
+    this.jumpBarChartData = {
+        labels: labels,
+        datasets: [{
+          label: 'Top Jumps (m)',
+          data: data,
+          backgroundColor: backgroundColors, // Dynamic colors per bar
+          borderColor: '#ababab',
+
+          // borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+    }
+
+
+
+    this.jumpBarChartOptions =  {
+      responsive: false,  // Disable responsiveness to prevent chart from adjusting to container size
+      maintainAspectRatio: true, // Allow chart to grow vertically as needed
+      indexAxis: 'y', // Horizontal bar chart
+      scales: {
+        x: {
+          beginAtZero: true
+        }
+      }
+    }
+
+
 
   }
 

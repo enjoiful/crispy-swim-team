@@ -15,7 +15,7 @@ export class FirebaseService {
 
   // Get sessions between the provided start and end epoch times (in milliseconds)
   getSessionsBetweenEpochs(startEpoch: number, endEpoch: number): Observable<any[]> {
-    const dbRef = ref(this.db, 'session-overviews');
+    const dbRef = ref(this.db, 'session-details');
 
     // Create a query to filter sessions where 'startepoch' is between start and end times
     const sessionQuery = query(
@@ -46,7 +46,7 @@ export class FirebaseService {
   }
   // Method to return all sessions for a given userId as an Observable
   getSessionsForUser(userId: number): Observable<any[]> {
-    const dbRef = ref(this.db, 'session-overviews'); // Adjust to your actual Firebase path
+    const dbRef = ref(this.db, 'session-details'); // Adjust to your actual Firebase path
 
     // Create a query to filter sessions where 'user/id' equals the provided userId
     const userSessionsQuery = query(dbRef, orderByChild('user/id'), equalTo(userId));

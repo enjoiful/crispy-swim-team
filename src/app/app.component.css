@@ -1,0 +1,9 @@
+.scroll-container {
+  width: 100%; /* Full width of the parent container */
+  height: 600px; /* Set a fixed height for vertical scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Disable horizontal scrolling (optional) */
+  border: 1px solid #ccc; /* Optional: for visibility */
+}
+
+/**/
