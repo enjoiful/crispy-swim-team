@@ -9,7 +9,7 @@ export const routes: Routes = [
     { path: 'component1', component: DashboardCardComponent },
     { path: 'all-sites', component: AllSitesComponent },
     { path: 'site-details', component: SiteDetailsComponent },
-    // { path: '', redirectTo: '/component1', pathMatch: 'full' }, // Default route
+    { path: '', redirectTo: '/all-sites', pathMatch: 'full' }, // Default route
     // { path: '**', redirectTo: '/component1' } // Wildcard route
   ];
   

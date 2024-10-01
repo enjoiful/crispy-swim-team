@@ -11,6 +11,7 @@ export class KitePipe implements PipeTransform {
 
     // Remove any content within parentheses, including the parentheses
     value = value.replace(/\(.*?\)/g, '').trim();
+     value = value.replace('.0', '').trim();
 
     // Split the string by '|'
     const parts = value.split('|').map(part => part.trim());
