@@ -14,4 +14,16 @@
         <div style="height: 24px; width: 0.5px; border-left: 1px solid #ababab;"></div>
         <app-dashboard-card [title]="'Points'" [value]="'-'"></app-dashboard-card>
     </div>
+
+
+<div stle="height:400px">
+  <canvas baseChart
+    [data]="chartData"
+    [options]="chartOptions"
+    [type]="'line'"
+    height="400">
+  </canvas>
 </div>
+
+</div>
+

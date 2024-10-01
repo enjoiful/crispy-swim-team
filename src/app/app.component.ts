@@ -180,7 +180,7 @@ export class AppComponent implements OnInit {
         this.allSessions = data;
         this.filteredSessions = data;
         this.sessionsService.updateData(data);
-        console.log(data)
+        // console.log(data)
         this.createChart(data)
         this.processJumps(data)
 
@@ -363,15 +363,15 @@ export class AppComponent implements OnInit {
     const backgroundColors = this.masterArray.map(jump => this.riderColors[jump.rider]);
 
 
-    console.log('data is', data, labels)
+    // console.log('data is', data, labels)
 
     this.jumpBarChartData = {
       labels: labels,
       datasets: [{
         label: 'Top Jumps (m)',
         data: data,
-        backgroundColor: backgroundColors, // Dynamic colors per bar
-        borderColor: '#ababab',
+        // backgroundColor: backgroundColors, // Dynamic colors per bar
+        // borderColor: '#ababab',
 
         // borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1
