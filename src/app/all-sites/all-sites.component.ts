@@ -71,7 +71,7 @@ export class AllSitesComponent {
       this.totalJumps = this.sessions.reduce((total, session) => total + (session.jumps?.length ? session.jumps.length : 0), 0);
 
       if (this.sessions.length > 0) {
-        this.processSessions(this.sessions)
+        this.processSessions()
       } else{
         this.chartData = {
           datasets: []
@@ -97,12 +97,15 @@ export class AllSitesComponent {
   public chartData: any;
   public chartOptions: any;
 
-processSessions(sessions: any[]) {
+processSessions() {
   // Time zone identifier for PST/PDT
   const timeZone = 'America/Los_Angeles';
 
+  // **Set the bin size in minutes**
+  const binSize = 10; // You can adjust this value as needed
+
   // Define chart start and end times (9:00 AM to 9:00 PM PST)
-  const dayStartDate = toZonedTime(sessions[0].startepoch, timeZone);
+  const dayStartDate = toZonedTime(this.sessions[0].startepoch, timeZone);
   dayStartDate.setHours(9, 0, 0, 0);
   const dayStartTime = dayStartDate.getTime();
 
@@ -110,8 +113,20 @@ processSessions(sessions: any[]) {
   dayEndDate.setHours(21, 0, 0, 0);
   const dayEndTime = dayEndDate.getTime();
 
+  // Total chart duration in minutes
+  const totalDuration = (dayEndTime - dayStartTime) / (1000 * 60);
+
+  // **Calculate the number of intervals based on the bin size**
+  const intervalCount = Math.ceil(totalDuration / binSize);
+
+  // **Create the bins based on the bin size**
+  const binEdges: number[] = [];
+  for (let i = 0; i <= intervalCount; i++) {
+    binEdges.push(i * binSize); // Minutes since 9:00 AM
+  }
+
   // Get a list of unique site IDs
-  const siteIds = Array.from(new Set(sessions.map((session: any) => session.spot.id) ));
+  const siteIds = Array.from(new Set(this.sessions.map(session => session.spot.id)));
 
   // Prepare datasets array
   const datasets: any[] = [];
@@ -130,90 +145,99 @@ processSessions(sessions: any[]) {
   siteIds.forEach((siteId, index) => {
     const siteSessions = this.sessions.filter(session => session.spot.id === siteId);
 
-    // Create events for session starts and ends
-    let events: { time: number; change: number }[] = [];
+    // Initialize counts for each bin
+    const binCounts = Array(binEdges.length - 1).fill(0);
 
+    // For each session, determine which bins it overlaps
     siteSessions.forEach(session => {
       // Convert start time to PST time zone
       const startDate = toZonedTime(session.startepoch, timeZone);
       const startTime = startDate.getTime();
       const endTime = startTime + session.timeonwater * 1000;
 
-      events.push({ time: startTime, change: 1 });   // Session starts
-      events.push({ time: endTime, change: -1 });    // Session ends
-    });
+      // Calculate minutes since 9:00 AM
+      const startMinutes = (startTime - dayStartTime) / (1000 * 60);
+      const endMinutes = (endTime - dayStartTime) / (1000 * 60);
 
-    // Sort events by time
-    events.sort((a, b) => a.time - b.time);
+      // Determine which bins the session is active in
+      for (let i = 0; i < binEdges.length - 1; i++) {
+        const binStart = binEdges[i];
+        const binEnd = binEdges[i + 1];
 
-    // Initialize data points for this site
-    let dataPoints: { x: number; y: number }[] = [];
-
-    // Initialize session count
-    let currentSessions = 0;
-    dataPoints.push({ x: dayStartTime, y: currentSessions });
-
-    // Process events to calculate the number of active sessions over time
-    events.forEach(event => {
-      if (event.time >= dayStartTime && event.time <= dayEndTime) {
-        currentSessions += event.change;
-        if (currentSessions < 0) {
-          currentSessions = 0
+        // Check if the session overlaps with this bin
+        if (startMinutes < binEnd && endMinutes > binStart) {
+          binCounts[i] += 1;
         }
-        dataPoints.push({ x: event.time, y: currentSessions });
       }
     });
 
-    dataPoints.push({ x: dayEndTime, y: currentSessions });
+    // Create data points based on bin counts
+    const dataPoints: { x: number; y: number }[] = [];
+
+    // Starting point at 9:00 AM
+    dataPoints.push({ x: 0, y: 0 });
+
+    for (let i = 0; i < binCounts.length; i++) {
+      const binStart = binEdges[i];
+
+      // Add data point at the start of the bin
+      dataPoints.push({ x: binStart, y: binCounts[i] });
+
+      // The value remains constant until the next bin
+      if (i < binCounts.length - 1) {
+        dataPoints.push({ x: binEdges[i + 1], y: binCounts[i] });
+      }
+    }
+
+    // Ensure the chart ends at the last bin edge
+    dataPoints.push({ x: totalDuration, y: 0 });
 
     // Add dataset for this site
     datasets.push({
       data: dataPoints,
-      label: this.siteNamePipe.transform(siteId),
+      label: `Site ${siteId}`,
       fill: 'origin',
       backgroundColor: colors[index % colors.length],
       borderColor: colors[index % colors.length].replace('0.4', '1'),
-      stepped: true,
-      // tension: 0.5,
-        borderWidth: 1, // Increase the border width
-
+      stepped: false,
+      borderWidth: 1,
+      tension: .04,
     });
   });
-
-  datasets.forEach((ds: any) => {
-    if (ds.data && ds.data && ds.data.length > 2){
-      let starter = {x:ds.data[1].x, y: ds.data[1].y }
-      starter.x = starter.x - 2000000 //bump back 1s
-      starter.y = 0
-      // console.log('starter is', starter)
-      ds.data.splice(1, 0, starter)
-    }
-  })
 
   // Set up chart data with multiple datasets
   this.chartData = {
     datasets: datasets
   };
 
-  console.log('chart data', this.chartData)
-
-  // Set up chart options (enable legend)
+  // Set up chart options with a linear x-axis
   this.chartOptions = {
+                   elements: {
+                    point:{
+                        radius: 0
+                    }
+                },
     scales: {
       x: {
-        type: 'time',
-        time: {
-          unit: 'hour',
-          displayFormats: {
-            hour: 'h a'
-          },
-          tooltipFormat: 'h:mm a',
-        },
-        min: dayStartTime,
-        max: dayEndTime,
+        type: 'linear',
+        position: 'bottom',
+        min: 0,
+        max: totalDuration,
         title: {
           display: true,
           text: 'Time (PST)'
+        },
+        ticks: {
+          stepSize: 60, // **Use the bin size for stepSize**
+          callback: (value: any) => {
+            // Convert minutes to time labels (e.g., 9:30 AM)
+            const minutes = Number(value);
+            const hours = Math.floor(minutes / 60) + 9; // 9 is the start hour
+            const mins = Math.floor(minutes % 60);
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const displayHour = hours > 12 ? hours - 12 : hours;
+            return `${displayHour} ${ampm}`;
+          }
         }
       },
       y: {
@@ -222,35 +246,38 @@ processSessions(sessions: any[]) {
           display: true,
           text: '# of Sessions'
         },
-                 ticks: {
-            stepSize: 1
-         }
+     ticks:{
+            stepSize: 1,
+     }
       }
     },
     plugins: {
       title: {
         display: false,
-        text: 'Surf Sessions Throughout the Day by Site'
+        text: `Surf Sessions Throughout the Day by Site (${binSize}-Minute Intervals)`
       },
       tooltip: {
         mode: 'index',
-        intersect: false
+        intersect: false,
+        callbacks: {
+          title: (tooltipItems: any) => {
+            // Convert minutes back to time for the tooltip
+            const minutes = tooltipItems[0].parsed.x;
+            const hours = Math.floor(minutes / 60) + 9; // 9 is the start hour
+            const mins = Math.floor(minutes % 60);
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const displayHour = hours > 12 ? hours - 12 : hours;
+            return `${displayHour}:${mins.toString().padStart(2, '0')} ${ampm}`;
+          }
+        }
       },
       legend: {
         display: false
       }
     },
-
     responsive: true,
-    maintainAspectRatio: false,
-                elements: {
-                    point:{
-                        radius: 0
-                    }
-                }
-           
+    maintainAspectRatio: false
   };
 }
-
 
 }
