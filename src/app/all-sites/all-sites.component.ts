@@ -72,7 +72,11 @@ export class AllSitesComponent {
 
       if (this.sessions.length > 0) {
         this.processSessions(this.sessions)
-
+      } else{
+        this.chartData = {
+          datasets: []
+        }
+        console.log('in here')
       }
 
 
@@ -153,6 +157,9 @@ processSessions(sessions: any[]) {
     events.forEach(event => {
       if (event.time >= dayStartTime && event.time <= dayEndTime) {
         currentSessions += event.change;
+        if (currentSessions < 0) {
+          currentSessions = 0
+        }
         dataPoints.push({ x: event.time, y: currentSessions });
       }
     });
