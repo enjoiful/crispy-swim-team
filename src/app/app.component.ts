@@ -370,7 +370,7 @@ export class AppComponent implements OnInit {
       datasets: [{
         label: 'Top Jumps (m)',
         data: data,
-        // backgroundColor: backgroundColors, // Dynamic colors per bar
+        backgroundColor: backgroundColors, // Dynamic colors per bar
         // borderColor: '#ababab',
 
         // borderColor: 'rgba(75, 192, 192, 1)',

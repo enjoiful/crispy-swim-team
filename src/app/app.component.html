@@ -194,10 +194,10 @@ margin-block: 1.5rem;
         </div>
       </div>
       
-      <div class="my-10">
+      <div class="my-2">
         <router-outlet />
       </div>
-      <canvas baseChart [data]="barChartData" [options]="chartOptions" [type]="'bar'"   height="200"> </canvas>
+      <canvas baseChart [data]="barChartData" [options]="chartOptions" [type]="'bar'"   height="200" > </canvas>
       <div class="card-container py-12">
       <app-session-card [session]="sesion" *ngFor="let sesion of filteredSessions"></app-session-card>
     </div>

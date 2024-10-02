@@ -8,6 +8,7 @@ import { SessionsService } from '../sessions.service'
 import { ChartData, ChartOptions, Chart } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { toZonedTime } from 'date-fns-tz';
+import { SiteNamePipe} from '../site-name.pipe'
 import { Filler } from 'chart.js';
 
 
@@ -25,7 +26,7 @@ export class AllSitesComponent {
   totalTime: string = ''
   totalJumps: number = 0;
   state$: Observable<object>
-  constructor(public activatedRoute: ActivatedRoute, private sessionsService: SessionsService) { }
+  constructor(public activatedRoute: ActivatedRoute, private sessionsService: SessionsService, private siteNamePipe: SiteNamePipe) { }
 
   formatTotalTime(sessions: any[]) {
     // Sum all the timeonwater values from the sessions
@@ -106,7 +107,7 @@ processSessions(sessions: any[]) {
   const dayEndTime = dayEndDate.getTime();
 
   // Get a list of unique site IDs
-  const siteIds = Array.from(new Set(sessions.map((session: any) => session.spot.id)));
+  const siteIds = Array.from(new Set(sessions.map((session: any) => session.spot.id) ));
 
   // Prepare datasets array
   const datasets: any[] = [];
@@ -161,12 +162,12 @@ processSessions(sessions: any[]) {
     // Add dataset for this site
     datasets.push({
       data: dataPoints,
-      label: `Site ${siteId}`,
+      label: this.siteNamePipe.transform(siteId),
       fill: 'origin',
       backgroundColor: colors[index % colors.length],
       borderColor: colors[index % colors.length].replace('0.4', '1'),
-      // stepped: true,
-      tension: 0.2,
+      stepped: true,
+      // tension: 0.5,
         borderWidth: 1, // Increase the border width
 
     });
@@ -177,7 +178,7 @@ processSessions(sessions: any[]) {
       let starter = {x:ds.data[1].x, y: ds.data[1].y }
       starter.x = starter.x - 2000000 //bump back 1s
       starter.y = 0
-      console.log('starter is', starter)
+      // console.log('starter is', starter)
       ds.data.splice(1, 0, starter)
     }
   })
@@ -213,12 +214,15 @@ processSessions(sessions: any[]) {
         title: {
           display: true,
           text: '# of Sessions'
-        }
+        },
+                 ticks: {
+            stepSize: 1
+         }
       }
     },
     plugins: {
       title: {
-        display: true,
+        display: false,
         text: 'Surf Sessions Throughout the Day by Site'
       },
       tooltip: {
@@ -226,18 +230,18 @@ processSessions(sessions: any[]) {
         intersect: false
       },
       legend: {
-        display: true
+        display: false
       }
     },
-                options: {
+
+    responsive: true,
+    maintainAspectRatio: false,
                 elements: {
                     point:{
                         radius: 0
                     }
                 }
-            },
-    responsive: true,
-    maintainAspectRatio: false
+           
   };
 }
 
