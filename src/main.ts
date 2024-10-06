@@ -8,9 +8,9 @@ import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { routes } from './app/app.routes';
+import { HomeComponent} from './app/home/home.component'
 
-
-  bootstrapApplication(AppComponent, {
+  bootstrapApplication(HomeComponent, {
     providers: [
       provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
       provideDatabase(() => getDatabase()), provideCharts(withDefaultRegisterables()),

@@ -76,7 +76,7 @@ export class AllSitesComponent {
         this.chartData = {
           datasets: []
         }
-        console.log('in here')
+        // console.log('in here')
       }
 
 

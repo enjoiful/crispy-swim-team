@@ -1,0 +1,6 @@
+.active-link {
+  text-decoration: underline; /* Underline the link */
+  text-decoration-color: #ff69b4; /* Fun color for the underline (hot pink) */
+  text-decoration-thickness: 3px; /* Thicker underline for a more fun style */
+/*  font-weight: bold;  Optionally, make the text bold */
+}

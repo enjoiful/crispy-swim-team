@@ -12,6 +12,6 @@ export class DashboardCardComponent {
   @Input() value: string = 'Default Value';
   
 constructor(){
-  console.log('sup yo')
+  // console.log('sup yo')
 }
 }
