@@ -13,7 +13,7 @@
 					<div [routerLink]="['/site-recap']" [queryParams]="{ siteId: ''}" routerLinkActive="active-link">All sites</div>
 					<div [routerLink]="['/site-recap' ]"  [queryParams]="{ siteId: 10511}" routerLinkActive="active-link"  >Crissy Field</div>
 					<div [routerLink]="['/site-recap' ]" [queryParams]="{ siteId: 10773}"routerLinkActive="active-link">3rd Avenue</div>
-					<div [routerLink]="['/site-recap' ]" [queryParams]="{ siteId: 5842}"routerLinkActive="active-link">Sherman Island</div>
+					<div [routerLink]="['/site-recap' ]" [queryParams]="{ siteId: 5842}" routerLinkActive="active-link">Sherman Island</div>
 				</div>
 			</div>
 			<div style="width:400px">
@@ -22,14 +22,13 @@
 		<div>
 			<canvas baseChart [data]="barChartData" [options]="chartOptions" [type]="'bar'" height="300" > </canvas>
 		</div>
-
 	</div>
 	<div class="flex" >
 		<div class="card-container py-12" style="width:400px">
 		<app-session-card [session]="session" *ngFor="let session of filteredSessions" style="width:100%"></app-session-card>
 	</div>
-			<div class="scroll-container">
-			<canvas baseChart [data]="jumpBarChartData" [options]="jumpBarChartOptions" [plugins]="[ChartDataLabels]"[type]="'bar'"  height="800"> </canvas>
-		</div>
+	<div class="scroll-container">
+		<canvas baseChart [data]="jumpBarChartData" [options]="jumpBarChartOptions" [plugins]="[ChartDataLabels]"[type]="'bar'"  height="800"> </canvas>
 	</div>
+</div>
 </div>

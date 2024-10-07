@@ -14,8 +14,14 @@ export class FirebaseService {
   
 
   // Get sessions between the provided start and end epoch times (in milliseconds)
-  getSessionsBetweenEpochs(startEpoch: number, endEpoch: number): Observable<any[]> {
-    const dbRef = ref(this.db, 'session-details');
+  getSessionsBetweenEpochs(startEpoch: number, endEpoch: number, useOverviews?: boolean): Observable<any[]> {
+    let URL = 'session-details'
+
+    if (useOverviews){
+      URL = 'session-overviews'
+    }
+    const dbRef = ref(this.db, URL);
+
 
     // Create a query to filter sessions where 'startepoch' is between start and end times
     const sessionQuery = query(

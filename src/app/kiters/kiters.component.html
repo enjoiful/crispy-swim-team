@@ -1,1 +1,32 @@
-<p>kiters works!</p>
+<div>
+	<!-- <app-sites-chart [sessions]="sessions"></app-sites-chart> -->
+	<div  class="card px-3 py-2 mb-2 rounded-md flex" style="background-color: #ffffff;  box-shadow: 0px 2px 14px 0px rgba(180, 180, 180, 0.25); width:300px" *ngFor="let kiter of kiters" [routerLink]="['/kiters', kiter.id]">
+		<div class="flex flex-column items-center">
+			<div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+				<!-- <img class="w-full h-full object-cover" src="profile.png"> alt="Profile Picture"> -->
+				<!-- <img [src]="imageSrc" alt="profile.png"> -->
+			</div>
+			<div class="flex flex-col">
+				<h3 class="mb-1 font-semibold text-sm">{{ kiter.name}}</h3>
+				<div class = "flex items-center">
+					<!-- 				<span class="text-xs font-mono pill mr-0" style="position: relative; left: -5px; --pill-accent: var({{getColor(session)}}  "> {{session.spot.id | siteName  }}</span>
+					<div class="font-mono" style="font-size:10px">{{session.kite | kite}}</div> -->
+				</div>
+			</div>
+		</div>
+		<!-- 	<div class="flex pl-2 justify-end grow items-center">
+				<div class="flex flex-col justify-start" style="width:60px">
+						<div class="font-mono p-0" style="font-size:5px; color: #767676">Height</div>
+						<div ><span  class="font-semibold">{{session.maxheight  | number:'1.1-1'}}</span><span style="font-size:10px; color: #767676">m</span></div>
+				</div>
+				<div class="flex flex-col justify-start ml-4">
+						<div class="font-mono p-0" style="font-size:5px; color: #767676">Time</div>
+						<div class="flex items-baseline">
+								<span  class="font-semibold">{{this.Math.floor(session.timeonwater  / 3600) }} </span><span style="font-size:10px; color: #767676">h</span>
+								<span  class="font-semibold">{{Math.floor((session.timeonwater % 3600) / 60) }} </span><span style="font-size:10px; color: #767676">m</span>
+						</div>
+				</div>
+		</div> -->
+		<!-- <div style="font-size:10px"> {{ session.id }} {{session.user?.id}}</div> -->
+	</div>
+</div>

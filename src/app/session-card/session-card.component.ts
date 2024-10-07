@@ -4,14 +4,13 @@ import { DurationFormatPipe } from '../duration-format.pipe'
 import { KitePipe } from '../kite.pipe'
 import { CommonModule } from '@angular/common';  // Import CommonModule
 import { openDB } from 'idb';
-
-
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 
 
 @Component({
   selector: 'app-session-card',
   standalone: true,
-  imports: [SiteNamePipe, CommonModule, KitePipe, DurationFormatPipe],
+  imports: [SiteNamePipe, CommonModule, KitePipe, DurationFormatPipe, RouterLink, RouterLinkActive],
   templateUrl: './session-card.component.html',
   styleUrl: './session-card.component.css'
 })
@@ -19,8 +18,6 @@ export class SessionCardComponent {
   @Input() session: any;
   Math = Math
   profilePictureUrl: string = 'assets/profile-picture.jpg'; // You can use a dynamic URL here
-
-
 
   getColor(session: any) {
     return '--gray-700'
@@ -34,7 +31,6 @@ export class SessionCardComponent {
       return '--gray-700'
     }
   }
-
 
   imageSrc: string = ''; // This will be bound to the <img> src attribute
  

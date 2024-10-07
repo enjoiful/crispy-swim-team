@@ -7,6 +7,7 @@ import { SiteRecapComponent} from './site-recap/site-recap.component'
 import { LeaderboardComponent} from './leaderboard/leaderboard.component'
 import { ChallengesComponent} from './challenges/challenges.component'
 import { KitersComponent} from './kiters/kiters.component'
+import { KiterDetailsComponent} from './kiter-details/kiter-details.component'
 import { SessionsComponent} from './sessions/sessions.component'
 
 
@@ -19,12 +20,15 @@ export const routes: Routes = [
     { path: 'site-recap', component: SiteRecapComponent },
     { path: 'leaderboard', component: LeaderboardComponent },
     { path: 'challenges', component: ChallengesComponent },
-    { path: 'kiters', component: KitersComponent },
     { path: 'sessions', component: SessionsComponent },
     { path: 'component1/', component: DashboardCardComponent },
     { path: 'all-sites/', component: AllSitesComponent },
     { path: 'site-details/', component: SiteDetailsComponent },
     // { path: '', redirectTo: '/site-recap/0', pathMatch: 'full' }, // Default route
     // { path: '**', redirectTo: '/component1' } // Wildcard route
+
+
+    { path: 'kiters', component: KitersComponent },
+    { path: 'kiters/:kiterId', component: KiterDetailsComponent },
   ];
   

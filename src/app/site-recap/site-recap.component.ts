@@ -10,11 +10,11 @@ import { SiteNamePipe } from '../site-name.pipe'; // Adjust the path as needed
 import { SessionsService } from '../sessions.service'
 import { SessionCardComponent } from '../session-card/session-card.component'
 import { AllSitesComponent } from '../all-sites/all-sites.component'
-import { Chart } from 'chart.js';
+
 import { mergeMap, concatMap } from 'rxjs/operators';
 
 
-
+import { Chart } from 'chart.js';
 import 'chartjs-plugin-datalabels'; // Import the plugin
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
@@ -51,7 +51,7 @@ export class SiteRecapComponent implements OnInit {
   ngOnInit() {
     // Set default date to yesterday's date
     const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 8);  // Subtract one day to get yesterday
+    yesterday.setDate(yesterday.getDate() - 11);  // Subtract one day to get yesterday
 
     // Format the date as yyyy-MM-dd for the date input
     this.selectedDate = this.formatDateToInput(yesterday);
