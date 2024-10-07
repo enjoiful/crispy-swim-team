@@ -55,70 +55,39 @@ export class SiteRecapComponent implements OnInit {
 
     // Format the date as yyyy-MM-dd for the date input
     this.selectedDate = this.formatDateToInput(yesterday);
-    this.fetchSessionsForDate(yesterday);
+    this.loadAndFilterSessions(yesterday)
 
 
-    this.route.queryParams.subscribe(params => {
-      // console.log('route loaded')
-      // let siteId = Number(params['siteId'])
-      // if (siteId){
-      //   this.filteredSessions = this.allSessions.filter(session => session.spot.id == Number(siteId))
-      // } else{
-      //   this.filteredSessions = this.allSessions;
-      // }
-      // this.sessionsService.updateData(this.filteredSessions);
-      // this.createChart(this.filteredSessions)
-      // this.processJumps(this.filteredSessions)
-    });
+  }
 
+  onDateChange() {
+    const selectedDatePST = this.convertToPST(this.selectedDate);  // When a new date is selected, make sure it's interpreted as PST
+    this.loadAndFilterSessions(selectedDatePST)
+  }
 
-    const startDate = this.setToStartOfDayInPST(new Date(yesterday));
-    const endDate = this.setToEndOfDayInPST(new Date(yesterday));
+  loadAndFilterSessions(selectedDate: Date) {
 
-    const startEpochInMilliseconds = startDate.getTime();  // Start of day (12:00:01 AM PST)
-    const endEpochInMilliseconds = endDate.getTime();  // End of day (11:59:59 PM PST)
-
-
-
-    this.firebaseService.getSessionsBetweenEpochs(startEpochInMilliseconds, endEpochInMilliseconds).pipe(
+    this.firebaseService.getSessionsBetweenEpochs(this.epochStartInMilliseconds(new Date(selectedDate)), this.epochEndInMilliseconds(new Date(selectedDate))).pipe(
       concatMap((apiData: any) => {
-    console.log('API data:', apiData);
-    return this.route.queryParams;
-  })
-).subscribe(params => {
-  console.log('Route parameters:', params);
-
-        console.log('route loaded')
+        console.log('All sessions:', apiData);
+        this.allSessions = apiData
+        return this.route.queryParams;
+      })
+    ).subscribe(params => {
+      console.log('Route parameters:', params);
       let siteId = Number(params['siteId'])
-      if (siteId){
+      if (siteId) {
         this.filteredSessions = this.allSessions.filter(session => session.spot.id == Number(siteId))
-      } else{
+      } else {
         this.filteredSessions = this.allSessions;
       }
+      console.log('filtered sessions', this.filteredSessions)
       this.sessionsService.updateData(this.filteredSessions);
       this.createChart(this.filteredSessions)
       this.processJumps(this.filteredSessions)
-});
+    });
 
 
-
-  }
-
-  // Format date to yyyy-MM-dd for the date picker input field
-  private formatDateToInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = ('0' + (date.getMonth() + 1)).slice(-2);  // Months are zero-indexed
-    const day = ('0' + date.getDate()).slice(-2);
-
-    return `${year}-${month}-${day}`;
-  }
-
-
-  // When a new date is selected, make sure it's interpreted as PST
-  onDateChange() {
-    // Convert the selected date (from date picker) to PST
-    const selectedDatePST = this.convertToPST(this.selectedDate);
-    this.fetchSessionsForDate(selectedDatePST);
   }
 
   // Convert the date from the date picker to PST (America/Los_Angeles time zone)
@@ -132,59 +101,25 @@ export class SiteRecapComponent implements OnInit {
     return pstDate;
   }
 
-  // Set the date to the start of the day in PST (12:00:01 AM PST)
-  private setToStartOfDayInPST(date: Date) {
+  // Format date to yyyy-MM-dd for the date picker input field
+  private formatDateToInput(date: Date): string {
+    const year = date.getFullYear();
+    const month = ('0' + (date.getMonth() + 1)).slice(-2);  // Months are zero-indexed
+    const day = ('0' + date.getDate()).slice(-2);
+
+    return `${year}-${month}-${day}`;
+  }
+
+  private epochStartInMilliseconds(date: Date) {
     const pstStartDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
     pstStartDate.setHours(0, 0, 1, 0);  // Set to 12:00:01 AM PST
-    return pstStartDate;
+    return pstStartDate.getTime();
   }
 
-  // Set the date to the end of the day in PST (11:59:59 PM PST)
-  private setToEndOfDayInPST(date: Date) {
+  private epochEndInMilliseconds(date: Date) {
     const pstEndDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
     pstEndDate.setHours(23, 59, 59, 999);  // Set to 11:59:59 PM PST
-    return pstEndDate;
-  }
-
-  // Fetch sessions between the start and end of the selected date in PST
-  fetchSessionsForDate(date: Date) {
-    // Get the start and end times in PST
-    const startDate = this.setToStartOfDayInPST(new Date(date));
-    const endDate = this.setToEndOfDayInPST(new Date(date));
-
-    const startEpochInMilliseconds = startDate.getTime();  // Start of day (12:00:01 AM PST)
-    const endEpochInMilliseconds = endDate.getTime();  // End of day (11:59:59 PM PST)
-
-    console.log('Start Epoch (PST):', startEpochInMilliseconds);
-    console.log('End Epoch (PST):', endEpochInMilliseconds);
-
-    // Call the service with the start and end epoch to fetch sessions in between
-    this.firebaseService.getSessionsBetweenEpochs(startEpochInMilliseconds, endEpochInMilliseconds)
-      .subscribe(data => {
-        console.log('sessions loaded from epoch')
-        this.allSessions = data;
-        this.filteredSessions = data;
-
-        this.sessionsService.updateData(data);
-        this.createChart(data)
-        this.processJumps(data)
-      });
-
-
-    // // Call the getSessionsForUser method from FirebaseService and subscribe to its observable
-    // this.firebaseService.getSessionsForUser(35609).subscribe({
-    //   next: (sessions) => {
-    //     // this.sessions = sessions;
-    //     // this.createChart(sessions)
-    //     // console.log('User Sessions:', this.sessions); // Debugging - log the retrieved sessions
-    //   },
-    //   error: (error) => {
-    //     // this.errorMessage = `Error fetching user sessions: ${error}`;
-    //     console.error(error);  // Log the error if something goes wrong
-    //   }
-    // });
-
-
+    return pstEndDate.getTime();
   }
 
 
@@ -391,10 +326,25 @@ export class SiteRecapComponent implements OnInit {
         }
       }
     }
-
-
-
   }
 
 
+
 }
+
+
+
+
+
+    // // Call the getSessionsForUser method from FirebaseService and subscribe to its observable
+    // this.firebaseService.getSessionsForUser(35609).subscribe({
+    //   next: (sessions) => {
+    //     // this.sessions = sessions;
+    //     // this.createChart(sessions)
+    //     // console.log('User Sessions:', this.sessions); // Debugging - log the retrieved sessions
+    //   },
+    //   error: (error) => {
+    //     // this.errorMessage = `Error fetching user sessions: ${error}`;
+    //     console.error(error);  // Log the error if something goes wrong
+    //   }
+    // });
